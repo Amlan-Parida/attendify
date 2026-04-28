@@ -7,7 +7,7 @@ const {
   skipOnboarding,
   publishTemplate,
 } = require('../controllers/templateController');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 router.use(protect);
 
@@ -15,6 +15,6 @@ router.get('/search', searchTemplate);
 router.post('/', createTemplate);
 router.post('/:id/clone', cloneTemplate);
 router.post('/skip', skipOnboarding);
-router.post('/publish', publishTemplate);
+router.post('/publish', authorize('admin', 'faculty'), publishTemplate);
 
 module.exports = router;

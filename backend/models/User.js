@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
     college: { type: String, trim: true, lowercase: true },
     year: { type: String, trim: true, lowercase: true },
     section: { type: String, trim: true, lowercase: true },
+    role: {
+      type: String,
+      enum: ['student', 'admin', 'faculty'],
+      default: 'student',
+    },
     onboardingComplete: {
       type: Boolean,
       default: false,
