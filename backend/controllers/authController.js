@@ -1,9 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const sendEmail = require('../utils/sendEmail');
-
-// Helper to generate 6-digit OTP
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // Generate JWT token
 const generateToken = (id) => {
