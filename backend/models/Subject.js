@@ -80,6 +80,10 @@ const subjectSchema = new mongoose.Schema(
       type: String,
       default: '#6366f1',
     },
+    autoMarkPresent: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -16,7 +16,7 @@ const getSubjects = async (req, res) => {
 // @desc    Create a new subject
 const createSubject = async (req, res) => {
   try {
-    const { name, classesPerWeek, daysOfWeek, slots, defaultWeight, minAttendance, color } = req.body;
+    const { name, classesPerWeek, daysOfWeek, slots, defaultWeight, minAttendance, color, autoMarkPresent } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: 'Subject name is required' });
@@ -31,6 +31,7 @@ const createSubject = async (req, res) => {
       defaultWeight: defaultWeight || 1,
       minAttendance: minAttendance ?? 75,
       color: color || '#6366f1',
+      autoMarkPresent: !!autoMarkPresent,
     });
 
     res.status(201).json(subject);
@@ -51,7 +52,7 @@ const updateSubject = async (req, res) => {
       return res.status(404).json({ message: 'Subject not found' });
     }
 
-    const { name, classesPerWeek, daysOfWeek, slots, defaultWeight, minAttendance, color } = req.body;
+    const { name, classesPerWeek, daysOfWeek, slots, defaultWeight, minAttendance, color, autoMarkPresent } = req.body;
     if (name !== undefined) subject.name = name;
     if (classesPerWeek !== undefined) subject.classesPerWeek = classesPerWeek;
     if (daysOfWeek !== undefined) subject.daysOfWeek = daysOfWeek;
@@ -59,6 +60,7 @@ const updateSubject = async (req, res) => {
     if (defaultWeight !== undefined) subject.defaultWeight = defaultWeight;
     if (minAttendance !== undefined) subject.minAttendance = minAttendance;
     if (color !== undefined) subject.color = color;
+    if (autoMarkPresent !== undefined) subject.autoMarkPresent = !!autoMarkPresent;
 
     const updated = await subject.save();
     res.json(updated);
@@ -91,4 +93,21 @@ const deleteSubject = async (req, res) => {
   }
 };
 
-module.exports = { getSubjects, createSubject, updateSubject, deleteSubject };
+// @desc    Clear all subjects and attendance data for a user
+// @route   DELETE /api/subjects/clear
+// @access  Private
+const clearAllSubjects = async (req, res) => {
+  try {
+    // Delete all attendance records for the user
+    await Attendance.deleteMany({ user: req.user._id });
+    
+    // Delete all subjects for the user
+    await Subject.deleteMany({ user: req.user._id });
+    
+    res.json({ message: 'All subjects and attendance records cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to clear account data', error: error.message });
+  }
+};
+
+module.exports = { getSubjects, createSubject, updateSubject, deleteSubject, clearAllSubjects };

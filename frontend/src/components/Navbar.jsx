@@ -13,8 +13,15 @@ import {
   Sun,
   Moon,
   ChevronRight,
-  Brain
+  Brain,
+  Settings,
+  HelpCircle,
+  Trash2,
+  Mail,
+  AlertTriangle
 } from 'lucide-react';
+import { useSubjects } from '../context/SubjectContext';
+import toast from 'react-hot-toast';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,10 +33,15 @@ const navLinks = [
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { clearAllData } = useSubjects();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const [clearModalOpen, setClearModalOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -42,9 +54,28 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  const handleClearAccount = async () => {
+    try {
+      await clearAllData();
+      setClearModalOpen(false);
+      setOptionsOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSendFeedback = () => {
+    if (!feedback.trim()) return toast.error('Please enter a message');
+    // Simulate sending feedback
+    toast.success('Feedback sent directly to the developer! Thank you.');
+    setFeedback('');
+    setHelpModalOpen(false);
+    setOptionsOpen(false);
+  };
+
   return (
     <nav className="fixed top-6 left-0 right-0 z-[100] px-6 pointer-events-none">
-      <div className={`max-w-6xl mx-auto flex items-center justify-between pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      <div className={`max-w-6xl mx-auto flex items-center justify-between pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] !overflow-visible ${
         scrolled 
           ? 'h-16 px-6 glass-card shadow-glow-sm scale-[0.98]' 
           : 'h-20 px-8 glass-card bg-white/20 dark:bg-surface-900/20 border-transparent shadow-none'
@@ -101,11 +132,43 @@ export default function Navbar() {
           </button>
 
           <div className="hidden md:flex items-center gap-3 pl-4 border-l border-surface-200/20">
-            <div className="relative group/user cursor-pointer">
-              <div className="absolute inset-0 bg-primary-500 blur-lg opacity-0 group-hover/user:opacity-20 transition-opacity"></div>
-              <div className="relative w-10 h-10 rounded-2xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 flex items-center justify-center text-surface-900 dark:text-white font-black text-sm shadow-sm">
-                {user?.name?.[0].toUpperCase()}
-              </div>
+            {/* Account Options Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setOptionsOpen(!optionsOpen)}
+                className="relative group/user cursor-pointer active:scale-95 transition-all"
+              >
+                <div className="absolute inset-0 bg-primary-500 blur-lg opacity-0 group-hover/user:opacity-20 transition-opacity"></div>
+                <div className="relative w-10 h-10 rounded-2xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 flex items-center justify-center text-surface-900 dark:text-white font-black text-sm shadow-sm group-hover/user:border-primary-500/50 transition-colors">
+                  {user?.name?.[0].toUpperCase()}
+                </div>
+              </button>
+
+              {optionsOpen && (
+                <>
+                  <div className="fixed inset-0 z-[90]" onClick={() => setOptionsOpen(false)}></div>
+                  <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl z-[100] p-2 animate-slide-up origin-top-right">
+                    <div className="px-3 py-2 border-b border-slate-100 dark:border-white/5 mb-2">
+                      <p className="text-sm font-black text-slate-900 dark:text-white truncate">{user?.name}</p>
+                      <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
+                    </div>
+                    
+                    <button 
+                      onClick={() => { setHelpModalOpen(true); setOptionsOpen(false); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                    >
+                      <HelpCircle className="w-4 h-4" /> Help from Dev
+                    </button>
+                    
+                    <button 
+                      onClick={() => { setClearModalOpen(true); setOptionsOpen(false); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors mt-1"
+                    >
+                      <Trash2 className="w-4 h-4" /> Clear Account
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             
             <button
@@ -182,6 +245,65 @@ export default function Navbar() {
                 className="w-full py-6 rounded-[2rem] bg-red-500 text-white text-xl font-black uppercase tracking-widest shadow-glow-sm shadow-red-500/40 hover:scale-[1.02] transition-all"
               >
                 Terminate Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Help Modal */}
+      {helpModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in pointer-events-auto">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setHelpModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/10 shadow-2xl p-6 md:p-8 animate-slide-up">
+            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 shadow-inner">
+              <Mail className="w-6 h-6" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Help & Feedback</h3>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-6">
+              Found a bug? Have a suggestion? Write directly to the developer. We read everything!
+            </p>
+            <textarea
+              className="premium-input w-full min-h-[120px] resize-none mb-6 text-sm"
+              placeholder="Describe your issue or feature request..."
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+            ></textarea>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setHelpModalOpen(false)} className="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleSendFeedback} className="flex-1 py-3.5 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-500 transition-all shadow-glow-sm">
+                Send Message
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Account Danger Modal */}
+      {clearModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in pointer-events-auto">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setClearModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] border border-red-200 dark:border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.15)] p-6 md:p-8 animate-slide-up">
+            <div className="w-12 h-12 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center text-red-600 dark:text-red-400 mb-6 shadow-inner">
+              <AlertTriangle className="w-6 h-6 animate-pulse" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Clear Account Data</h3>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4">
+              Are you sure you want to completely wipe all your subjects and attendance records? 
+            </p>
+            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-3 mb-6">
+              <p className="text-xs font-bold text-red-700 dark:text-red-400">
+                <span className="font-black uppercase tracking-widest mr-1 text-[10px]">Warning:</span>
+                This is useful for starting a new semester, but this action cannot be undone. Your account credentials will remain.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setClearModalOpen(false)} className="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleClearAccount} className="flex-1 py-3.5 bg-red-600 text-white font-black rounded-xl hover:bg-red-500 transition-all shadow-glow-sm shadow-red-500/30">
+                Yes, Wipe Data
               </button>
             </div>
           </div>

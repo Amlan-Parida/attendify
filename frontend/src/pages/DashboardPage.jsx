@@ -6,6 +6,7 @@ import SubjectModal from '../components/SubjectModal';
 import MarkAttendanceModal from '../components/MarkAttendanceModal';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { createPortal } from 'react-dom';
 import {
   Plus, RefreshCw, AlertTriangle, CheckCircle2, AlertCircle,
   BookOpen, Target, Zap, Sparkles,
@@ -33,6 +34,19 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchSubjects();
   }, [fetchSubjects]);
+
+  // Disable background scrolling when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = showSubjectModal || !!editSubject || !!markSubject;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSubjectModal, editSubject, markSubject]);
 
   const handleCreateSubject = async (payload) => {
     await createSubject(payload);
@@ -80,54 +94,54 @@ export default function DashboardPage() {
   return (
     <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-6 space-y-12">
       
-      {/* 🚀 HERO SECTION - VIBRANT ELITE */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950 shadow-2xl group">
-        {/* Dynamic Mesh Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 via-violet-600/5 to-transparent"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-violet-500/10 rounded-full blur-[100px] animate-pulse-slow"></div>
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-8 md:p-16 gap-12">
-          <div className="max-w-2xl space-y-8 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-glow-sm">
-              <Sparkles className="w-3.5 h-3.5 animate-spin-slow" /> Intelligence Active
+      {/* 🚀 PREMIUM COMPACT HEADER */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-2xl group bg-white dark:bg-slate-950 animate-slide-up">
+        {/* Animated Glow Backing */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-violet-500/10 dark:from-indigo-600/20 dark:via-fuchsia-600/20 dark:to-violet-600/20 animate-gradient-x opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
+        
+        {/* Unique Textures & Patterns */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.02] dark:opacity-[0.05] pointer-events-none"></div>
+        <div className="absolute top-[-50%] left-[-10%] w-[50%] h-[200%] bg-indigo-500/20 dark:bg-indigo-500/10 blur-[60px] rounded-full animate-pulse-slow"></div>
+        
+        {/* Glassmorphic Inner Container */}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between p-6 sm:p-8 gap-6 bg-white/60 dark:bg-slate-950/40 backdrop-blur-xl border-t border-white/80 dark:border-white/5 m-0">
+          <div className="flex-1 space-y-3 text-center sm:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-white/5 border border-indigo-100 dark:border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-300 shadow-sm dark:shadow-inner animate-fade-in">
+              <Sparkles className="w-3 h-3 text-indigo-500 dark:text-indigo-400 animate-pulse" /> Executive Dashboard
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.85] text-slate-950 dark:text-white">
-              Master Your <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">Academic</span> Destiny.
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900 dark:text-white drop-shadow-sm dark:drop-shadow-none animate-slide-up animate-stagger-1">
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400 animate-gradient-x inline-block hover:scale-105 transition-transform cursor-default">{user?.name?.split(' ')[0]}</span>
             </h1>
 
-            <p className="text-slate-500 dark:text-slate-400 text-xl md:text-2xl font-bold max-w-lg leading-relaxed mx-auto md:mx-0">
-              Sync complete. <span className="text-slate-900 dark:text-white underline decoration-indigo-500/30 underline-offset-4">{user?.name?.split(' ')[0]}</span>, your curriculum is currently at <span className="text-indigo-600">Peak Performance</span>.
+            <p className="text-slate-600 dark:text-slate-400 text-sm font-bold tracking-tight animate-slide-up animate-stagger-2">
+              Curriculum running at <span className="text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/20 shadow-sm">Peak Performance</span>.
             </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-5 pt-4">
-              <button onClick={() => setShowSubjectModal(true)} className="btn-premium w-full sm:w-auto py-5 px-10 text-lg shadow-glow">
-                New Subject <Plus className="w-6 h-6" />
-              </button>
-              <button 
-                onClick={() => exportDashboardToPDF(enrichedSubjects, user?.name || 'Student')} 
-                className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-black rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500/50 transition-all flex items-center justify-center gap-3 shadow-xl group/btn"
-              >
-                Sync Report <ArrowUpRight className="w-5 h-5 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-              </button>
-            </div>
           </div>
 
-          <div className="relative w-full md:w-1/3 aspect-square hidden md:block">
-            <div className="absolute inset-0 bg-indigo-600/20 blur-[120px] rounded-full animate-pulse"></div>
-            <div className="relative z-10 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-700">
-              <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
-                className="w-full h-full object-cover"
-              >
-                <source src="/hero-video.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+          <div className="flex items-center gap-5 sm:gap-6 shrink-0 animate-slide-up animate-stagger-3">
+            <div className="flex flex-col items-end text-right">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Current Status</span>
+              <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white drop-shadow-sm">{gamification.rank}</span>
+            </div>
+            
+            {/* Minimal Circular Progress */}
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-white/50 dark:bg-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.15)] dark:shadow-[0_0_20px_rgba(99,102,241,0.3)] group-hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-shadow duration-700">
+              <svg className="absolute inset-0 w-full h-full -rotate-90">
+                <circle cx="50%" cy="50%" r="42%" fill="none" strokeWidth="4" className="stroke-indigo-100 dark:stroke-white/5" />
+                <circle 
+                  cx="50%" cy="50%" r="42%" 
+                  fill="none" 
+                  strokeWidth="4" 
+                  strokeDasharray="264" 
+                  strokeDashoffset={264 - (264 * gamification.overallPct) / 100} 
+                  className="stroke-indigo-500 dark:stroke-indigo-400 transition-all duration-1000 ease-out" 
+                  strokeLinecap="round" 
+                />
+              </svg>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-sm sm:text-lg font-black text-slate-900 dark:text-white leading-none">{Math.round(gamification.overallPct)}%</span>
+              </div>
             </div>
           </div>
         </div>
@@ -154,7 +168,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-slide-up">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slide-up">
             {enrichedSubjects.map((subject) => (
               <SubjectCard
                 key={subject._id}
@@ -274,23 +288,43 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      {showSubjectModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-3xl animate-fade-in">
-          <div className="glass-card w-full max-w-lg bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20">
+      {showSubjectModal && createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen top-0 left-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-md animate-fade-in"
+          onClick={() => setShowSubjectModal(false)}
+        >
+          <div 
+            className="glass-card w-full max-w-lg bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20"
+            onClick={(e) => e.stopPropagation()}
+          >
             <SubjectModal onClose={() => setShowSubjectModal(false)} onSave={handleCreateSubject} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-      {editSubject && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-3xl animate-fade-in">
-          <div className="glass-card w-full max-w-lg bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20">
+      {editSubject && createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen top-0 left-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-md animate-fade-in"
+          onClick={() => setEditSubject(null)}
+        >
+          <div 
+            className="glass-card w-full max-w-lg bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20"
+            onClick={(e) => e.stopPropagation()}
+          >
             <SubjectModal subject={editSubject} onClose={() => setEditSubject(null)} onSave={handleUpdateSubject} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-      {markSubject && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-3xl animate-fade-in">
-          <div className="glass-card w-full max-w-lg bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20">
+      {markSubject && createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen top-0 left-0 z-[100] flex items-center justify-center p-6 bg-slate-950/40 backdrop-blur-md animate-fade-in"
+          onClick={() => { setMarkSubject(null); setMarkSlot(null); }}
+        >
+          <div 
+            className="glass-card w-full max-w-md bg-white/90 dark:bg-slate-900/90 shadow-glow-lg animate-slide-up border-white/20"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MarkAttendanceModal
               subject={markSubject}
               slot={markSlot}
@@ -301,7 +335,8 @@ export default function DashboardPage() {
               }}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

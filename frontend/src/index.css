@@ -24,13 +24,51 @@
   }
 
   body {
-    @apply bg-slate-100 text-slate-900 font-sans antialiased dark:bg-[#020617] dark:text-slate-50 transition-colors duration-700 min-h-screen selection:bg-indigo-500 selection:text-white overflow-x-hidden;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0, transparent 50%);
+    @apply bg-slate-50/50 text-slate-900 font-sans antialiased dark:bg-[#020617] dark:text-slate-50 transition-colors duration-700 min-h-screen selection:bg-indigo-500 selection:text-white overflow-x-hidden relative;
     font-family: 'Plus Jakarta Sans', sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Universal Premium Background Mesh (Adapts to Light/Dark) */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    /* Beautiful Light Mode Mesh */
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%),
+      radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.1) 0, transparent 60%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0, transparent 60%),
+      radial-gradient(at 0% 100%, rgba(56, 189, 248, 0.15) 0, transparent 60%);
+    transition: background-image 0.7s ease;
+  }
+
+  /* Subtle dot pattern for light mode only to add texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 1;
+    transition: opacity 0.7s ease;
+  }
+
+  .dark body::before {
+    /* Subtle Dark Mode Mesh */
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%);
+  }
+
+  .dark body::after {
+    opacity: 0.03; /* Barely visible in dark mode */
+    background-image: radial-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px);
   }
 }
 

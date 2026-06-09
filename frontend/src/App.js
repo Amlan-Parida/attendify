@@ -13,6 +13,7 @@ import CalendarPage from './pages/CalendarPage';
 import SubjectsPage from './pages/SubjectsPage';
 import OnboardingPage from './pages/OnboardingPage';
 import IntelligencePage from './pages/IntelligencePage';
+import OtpPage from './pages/OtpPage';
 
 function AppLayout({ children }) {
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function App() {
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/verify-email" element={<OtpPage />} />
 
             {/* Protected routes */}
             <Route

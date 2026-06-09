@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { UploadCloud, AlertCircle, Loader2, Sparkles, FileText, X } from 'lucide-react';
 
@@ -27,79 +27,29 @@ export default function AiScanner({ onDataParsed, mode }) {
     }
   };
 
-  // Helper to convert file to Google Generative AI part
-  async function fileToGenerativePart(file) {
-    const base64EncodedDataPromise = new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(file);
-    });
-    return {
-      inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
-    };
-  }
-
   const handleScan = async () => {
     if (!file) return;
-    
-    const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-    if (!apiKey) {
-      return toast.error('Gemini API Key is not configured in .env');
-    }
 
     setLoading(true);
-    const isSubjects = mode === 'subjects';
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('mode', mode);
 
-      const prompt = `
-        You are an expert academic data scientist. 
-        ANALYSIS TASK:
-        1. Carefully examine the provided ${file.type.startsWith('image/') ? 'image' : 'document'}.
-        2. Extract ${isSubjects ? 'subjects and their schedules' : 'holiday names and dates'}.
-        3. If it's a schedule, return a 'subjects' array where each subject has:
-           - 'name': string
-           - 'slots': array of { day: number (0=Sun, 1=Mon...), startTime: string (HH:MM), endTime: string (HH:MM), type: string (Theory/Lab), weight: number (2 for Theory, 1 for Lab) }
-        4. If it's holidays, return a 'holidays' array of { name: string, date: string (YYYY-MM-DD) }.
+      const { data } = await api.post('/ai/scan', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-        Return ONLY a JSON object. No markdown.
-        JSON STRUCTURE:
-        {
-          "subjects": [],
-          "holidays": [],
-          "raw_text": "Brief overview"
-        }
-      `;
-
-      let result;
-      if (file.type.startsWith('image/')) {
-        const imagePart = await fileToGenerativePart(file);
-        result = await model.generateContent([prompt, imagePart]);
-      } else {
-        // For documents, we try to pass them if supported, otherwise notify
-        // Note: Gemini 1.5 Flash supports some doc types as parts
-        const docPart = await fileToGenerativePart(file);
-        result = await model.generateContent([prompt, docPart]);
-      }
-
-      const response = await result.response;
-      let text = response.text();
-      
-      // Clean JSON if Gemini wrapped it in markdown code blocks
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) text = jsonMatch[0];
-
-      const parsedData = JSON.parse(text);
-      onDataParsed(parsedData);
+      onDataParsed(data);
       
       setFile(null);
       setPreview(null);
       toast.success('AI Successfully extracted your data!');
     } catch (err) {
       console.error('Scan Error:', err);
-      toast.error('Scan failed. Try an image or enter manually.');
+      const msg = err.response?.data?.message || 'Scan failed. Try an image or enter manually.';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

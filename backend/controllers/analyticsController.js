@@ -51,9 +51,42 @@ const computeStats = (records, subject, sessionEndDate, customTargetPct = null) 
   // percentage = (attended / conducted) * 100
   // ──────────────────────────────────────────────────────────────────────────────
 
-  const activeRecords = records.filter((r) => ['Present', 'Absent', 'Mass Bunk'].includes(r.status));
+  let activeRecords = records.filter((r) => ['Present', 'Absent', 'Mass Bunk'].includes(r.status));
+
+  if (subject.autoMarkPresent) {
+    const start = new Date(subject.createdAt || today);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(today);
+    end.setHours(23, 59, 59, 999);
+    
+    const existingDates = new Set(
+      records.map(r => new Date(r.date).toISOString().split('T')[0])
+    );
+    
+    let currentDay = new Date(start);
+    while (currentDay <= end) {
+      const dayOfWeek = currentDay.getDay();
+      const dateString = currentDay.toISOString().split('T')[0];
+      
+      if (!existingDates.has(dateString)) {
+        if (subject.slots && subject.slots.length > 0) {
+          subject.slots.forEach(slot => {
+            if (Number(slot.day) === dayOfWeek) {
+              activeRecords.push({
+                status: 'Present',
+                date: dateString,
+                weight: slot.weight || 1
+              });
+            }
+          });
+        }
+      }
+      currentDay.setDate(currentDay.getDate() + 1);
+    }
+  }
+
   const conducted = activeRecords.reduce((sum, r) => sum + (r.weight || 1), 0);
-  const attended = records
+  const attended = activeRecords
     .filter((r) => r.status === 'Present')
     .reduce((sum, r) => sum + (r.weight || 1), 0);
 

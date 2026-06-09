@@ -70,9 +70,21 @@ export const SubjectProvider = ({ children }) => {
     }
   }, []);
 
+  const clearAllData = useCallback(async () => {
+    try {
+      await api.delete('/subjects/clear');
+      setSubjects([]);
+      toast.success('All data cleared successfully');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to clear data';
+      toast.error(msg);
+      throw new Error(msg);
+    }
+  }, []);
+
   return (
     <SubjectContext.Provider
-      value={{ subjects, loadingSubjects, fetchSubjects, createSubject, updateSubject, deleteSubject }}
+      value={{ subjects, loadingSubjects, fetchSubjects, createSubject, updateSubject, deleteSubject, clearAllData }}
     >
       {children}
     </SubjectContext.Provider>

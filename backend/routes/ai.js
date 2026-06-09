@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { scanImage, summarizeText } = require('../controllers/aiController');
+const { scanImage, summarizeText, getDocuments, deleteDocument } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
 // Configure multer for memory storage (we just need the buffer to pass to Gemini)
@@ -28,5 +28,7 @@ router.use(protect);
 
 router.post('/scan', upload.single('image'), scanImage);
 router.post('/summarize', summarizeText);
+router.get('/documents', getDocuments);
+router.delete('/documents/:id', deleteDocument);
 
 module.exports = router;

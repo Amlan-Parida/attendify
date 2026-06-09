@@ -17,6 +17,7 @@ export default function SubjectModal({ subject, onClose, onSave }) {
   const [slots, setSlots] = useState(subject?.slots || []);
   const [minAttendance, setMinAttendance] = useState(subject?.minAttendance || 75);
   const [color, setColor] = useState(subject?.color || '#6366f1');
+  const [autoMarkPresent, setAutoMarkPresent] = useState(subject?.autoMarkPresent || false);
   const [loading, setLoading] = useState(false);
 
   const isEdit = !!subject?._id;
@@ -66,6 +67,7 @@ export default function SubjectModal({ subject, onClose, onSave }) {
         defaultWeight: slots[0]?.weight || 1,
         minAttendance: Number(minAttendance),
         color,
+        autoMarkPresent,
       });
       onClose();
     } catch (err) {
@@ -213,18 +215,6 @@ export default function SubjectModal({ subject, onClose, onSave }) {
                     </button>
                   </div>
 
-                  {/* Optional Time Settings */}
-                  <div className="flex items-center gap-4 pt-2 border-t border-slate-100 dark:border-white/5">
-                    <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                      <Clock className="w-3.5 h-3.5" /> Start Time
-                    </div>
-                    <input 
-                      type="time" 
-                      value={slot.startTime} 
-                      onChange={(e) => updateSlot(idx, 'startTime', e.target.value)}
-                      className="bg-transparent border-none text-[10px] font-black text-indigo-600 focus:ring-0 p-0"
-                    />
-                  </div>
                 </div>
               ))
             )}
@@ -271,6 +261,26 @@ export default function SubjectModal({ subject, onClose, onSave }) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Auto-Mark Present Toggle */}
+        <div className="space-y-3 p-4 bg-indigo-50/35 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-white/5">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={autoMarkPresent} 
+              onChange={(e) => setAutoMarkPresent(e.target.checked)}
+              className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+            />
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                Auto-Mark Present
+              </span>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Automatically assume present for past sessions unless manually marked absent.
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* Submit Actions */}

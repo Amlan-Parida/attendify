@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('attendify_user', JSON.stringify(userPayload));
       setUser(userPayload);
       
-      toast.success('Registration successful!');
+      // toast.success('Registration successful!'); // handled in component or later
       return data;
     } catch (err) {
       const message = err.response?.data?.message || err.message;
@@ -94,6 +94,41 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const verifyOtp = useCallback(async ({ email, otp }) => {
+    try {
+      const { data } = await api.post('/auth/verify-otp', { email, otp });
+      
+      const userPayload = {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        onboardingComplete: data.onboardingComplete,
+        sessionEndDate: data.sessionEndDate
+      };
+
+      localStorage.setItem('attendify_token', data.token);
+      localStorage.setItem('attendify_user', JSON.stringify(userPayload));
+      setUser(userPayload);
+      
+      toast.success('Email verified successfully!');
+      return data;
+    } catch (err) {
+      const message = err.response?.data?.message || err.message;
+      throw new Error(message);
+    }
+  }, []);
+
+  const resendOtp = useCallback(async ({ email }) => {
+    try {
+      const { data } = await api.post('/auth/resend-otp', { email });
+      toast.success(data.message || 'OTP resent successfully!');
+      return data;
+    } catch (err) {
+      const message = err.response?.data?.message || err.message;
+      throw new Error(message);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     localStorage.removeItem('attendify_token');
     localStorage.removeItem('attendify_user');
@@ -103,11 +138,12 @@ export const AuthProvider = ({ children }) => {
 
   const completeOnboarding = useCallback(async (profileData = {}) => {
     try {
-      if (profileData.sessionEndDate) {
-        await api.put('/auth/settings', profileData);
-      }
+      const { data } = await api.put('/auth/settings', {
+        ...profileData,
+        onboardingComplete: true
+      });
       
-      const updatedUser = { ...user, ...profileData, onboardingComplete: true };
+      const updatedUser = { ...user, ...data, onboardingComplete: true };
       setUser(updatedUser);
       localStorage.setItem('attendify_user', JSON.stringify(updatedUser));
       
@@ -121,7 +157,7 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout, completeOnboarding }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, completeOnboarding, verifyOtp, resendOtp }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+
+// Helper to generate 6-digit OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -105,12 +109,16 @@ const getMe = async (req, res) => {
 // @access  Private
 const updateSettings = async (req, res) => {
   try {
-    const { sessionEndDate } = req.body;
+    const { sessionEndDate, college, year, section, onboardingComplete } = req.body;
     const user = await User.findById(req.user._id);
     
     if (sessionEndDate) {
       user.sessionEndDate = new Date(sessionEndDate);
     }
+    if (college !== undefined) user.college = college;
+    if (year !== undefined) user.year = year;
+    if (section !== undefined) user.section = section;
+    if (onboardingComplete !== undefined) user.onboardingComplete = onboardingComplete;
     
     await user.save();
     res.json({
@@ -128,4 +136,88 @@ const updateSettings = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getMe, updateSettings };
+// @desc    Verify OTP
+// @route   POST /api/auth/verify-otp
+// @access  Public
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: 'Please provide email and OTP' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email is already verified' });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+
+    if (new Date() > user.otpExpires) {
+      return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      onboardingComplete: user.onboardingComplete,
+      sessionEndDate: user.sessionEndDate,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ message: 'Server error during verification' });
+  }
+};
+
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Please provide email' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email is already verified' });
+    }
+
+    user.otp = generateOTP();
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    try {
+      await sendEmail({ email: user.email, otp: user.otp });
+    } catch (err) {
+      console.error('Email sending failed:', err);
+    }
+
+    res.json({ message: 'OTP resent successfully' });
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    res.status(500).json({ message: 'Server error during OTP resend' });
+  }
+};
+
+module.exports = { signup, login, getMe, updateSettings, verifyOtp, resendOtp };

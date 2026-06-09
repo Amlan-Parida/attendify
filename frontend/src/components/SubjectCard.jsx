@@ -8,15 +8,15 @@ import { formatPct, whatIfMiss } from '../utils/attendanceUtils';
 
 const StatusBadge = ({ status }) => {
   const map = {
-    safe: { label: 'Secured', icon: ShieldCheck, class: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' },
-    warning: { label: 'At Risk', icon: AlertCircle, class: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
-    critical: { label: 'Danger', icon: ShieldAlert, class: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' },
-    'no-data': { label: 'No Data', icon: Info, class: 'bg-surface-500/10 text-surface-500 border-surface-500/20' },
+    safe: { label: 'Secured', icon: ShieldCheck, class: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/10' },
+    warning: { label: 'At Risk', icon: AlertCircle, class: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/10' },
+    critical: { label: 'Danger', icon: ShieldAlert, class: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/10' },
+    'no-data': { label: 'No Data', icon: Info, class: 'bg-slate-500/10 text-slate-500 border-slate-500/10' },
   };
   const s = map[status] || map['no-data'];
   const Icon = s.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all duration-500 ${s.class}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shadow-sm transition-all duration-300 ${s.class}`}>
       <Icon className="w-2.5 h-2.5" />
       {s.label}
     </span>
@@ -32,7 +32,8 @@ export default function SubjectCard({ subject, onEdit, onDelete, onMark }) {
     absences = 0, massBunks = 0, holidays = 0,
     classesNeeded = 0, canMiss = 0, status = 'no-data',
     smartForecast,
-    defaultWeight = 1
+    defaultWeight = 1,
+    autoMarkPresent = false
   } = subject;
 
   const wif = whatIfMiss(attended, conducted);
@@ -40,154 +41,155 @@ export default function SubjectCard({ subject, onEdit, onDelete, onMark }) {
   const goal = minAttendance;
 
   // Build the circular progress ring
-  const radius = 28;
+  const radius = 24;
   const circumference = 2 * Math.PI * radius;
   const safePct = Math.min(percentage, 100);
   const strokeDashoffset = circumference - (safePct / 100) * circumference;
 
   const ringColor =
-    status === 'safe' ? '#22c55e'
+    status === 'safe' ? '#10b981'
     : status === 'warning' ? '#f59e0b'
     : status === 'critical' ? '#ef4444'
-    : '#94a3b8';
+    : '#64748b';
 
   return (
-    <div className="card group relative overflow-hidden flex flex-col justify-between border-l-4 hover:border-l-8 p-5"
-      style={{ borderLeftColor: color || '#6366f1' }}>
-      
-      {/* Glossy Overlay */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 dark:bg-black/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700"></div>
+    <div className="glass-card group relative overflow-hidden flex flex-col justify-between border-t-4 p-5 bg-white/90 dark:bg-slate-900/90 shadow-md hover:shadow-xl transition-all duration-300"
+      style={{ borderTopColor: color || '#6366f1' }}>
 
-      <div className="relative">
-        {/* Header - More Compact */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20"
-              style={{ backgroundColor: `${color}15`, color }}>
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-black text-slate-950 dark:text-white text-xl md:text-2xl truncate tracking-tighter" title={name}>
-                {name}
-              </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-md ${isTheory ? 'bg-indigo-600/10 text-indigo-600' : 'bg-emerald-600/10 text-emerald-600'}`}>
-                  {isTheory ? 'Theory ×2' : 'Lab ×1'}
+      {/* 🚀 PREMIUM SUBJECT CARD */}
+      <div className="relative space-y-4">
+        
+        {/* Header (Subject Info & Status Badge) */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-black text-slate-900 dark:text-white text-lg tracking-tight break-words leading-tight" title={name}>
+              {name}
+            </h3>
+            <div className="flex items-center flex-wrap gap-2 mt-2">
+              <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${isTheory ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20'}`}>
+                {isTheory ? 'Theory' : 'Lab'} ×{defaultWeight || 1}
+              </span>
+              {autoMarkPresent && (
+                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20">
+                  Auto-Mark
                 </span>
-                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  {goal}% Target
-                </span>
-              </div>
+              )}
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md border border-slate-200 dark:border-white/10">
+                Target: {goal}%
+              </span>
             </div>
           </div>
-          <StatusBadge status={status} />
+          <div className="shrink-0">
+            <StatusBadge status={status} />
+          </div>
         </div>
 
-        {/* Stats Row - Compact Hybrid */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative flex-shrink-0">
-            <svg width="72" height="72" viewBox="0 0 72 72" className="relative">
-              <circle cx="36" cy="36" r={radius} fill="none" className="stroke-surface-50 dark:stroke-surface-800/50" strokeWidth="6" />
+        {/* Compact stats grid with Premium look */}
+        <div className="flex items-center justify-between gap-4 bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-200/60 dark:border-white/5 shadow-inner">
+          {/* Circular progress */}
+          <div className="relative flex-shrink-0 flex items-center justify-center filter drop-shadow-md">
+            <svg width="56" height="56" viewBox="0 0 64 64" className="relative">
+              <circle cx="32" cy="32" r={radius} fill="none" className="stroke-slate-200 dark:stroke-white/10" strokeWidth="5" />
               <circle
-                cx="36" cy="36" r={radius} fill="none"
-                stroke={ringColor} strokeWidth="6"
+                cx="32" cy="32" r={radius} fill="none"
+                stroke={ringColor} strokeWidth="5"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
-                transform="rotate(-90 36 36)"
+                transform="rotate(-90 32 32)"
                 className="transition-all duration-1000 ease-out"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-black text-surface-900 dark:text-white">{formatPct(percentage)}</span>
+              <span className="text-xs font-black text-slate-900 dark:text-white drop-shadow-sm">{formatPct(percentage)}</span>
             </div>
           </div>
 
-          <div className="flex-1 grid grid-cols-2 gap-3">
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400 mb-1">Presence</p>
-              <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{attended}</p>
+          <div className="flex-1 grid grid-cols-2 gap-3 text-center divide-x divide-slate-200 dark:divide-white/10">
+            <div className="flex flex-col justify-center">
+              <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Attended</p>
+              <p className="text-xl font-black text-slate-900 dark:text-white leading-none">{attended}</p>
             </div>
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400 mb-1">Total</p>
-              <p className="text-xl font-black text-slate-950 dark:text-white leading-none">{conducted}</p>
+            <div className="flex flex-col justify-center">
+              <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Conducted</p>
+              <p className="text-xl font-black text-slate-900 dark:text-white leading-none">{conducted}</p>
             </div>
           </div>
         </div>
 
-        {/* Forecast - Slimmer */}
-        <div className="mb-3">
-          {smartForecast && (
-            <div className="px-4 py-3 bg-indigo-50 dark:bg-primary-500/10 rounded-2xl border border-indigo-100 dark:border-primary-500/10 relative overflow-hidden group/forecast">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-                <p className="text-xs font-black text-slate-800 dark:text-surface-300 uppercase tracking-tight">
-                  {classesNeeded > 0 
-                    ? `Attend ${classesNeeded} more sessions.` 
-                    : `Safe! Can miss ${canMiss} sessions.`}
-                </p>
+        {/* Dynamic AI Status Prediction */}
+        {smartForecast && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-indigo-50/80 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 animate-pulse" />
+            <p className="text-[10px] font-bold text-slate-700 dark:text-indigo-100 leading-snug">
+              {classesNeeded > 0 
+                ? `You must attend the next ${classesNeeded} classes to reach your target.` 
+                : `You are safe. You can securely skip the next ${canMiss} classes.`}
+            </p>
+          </div>
+        )}
+
+        {/* Accordion Simulation Mode */}
+        <div className="border-t border-slate-200 dark:border-white/10 pt-2">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="w-full flex items-center justify-between text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300 transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5"
+          >
+            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+              <Target className="w-3.5 h-3.5" /> Simulation Engine
+            </span>
+            {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {expanded && (
+            <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl space-y-3 border border-slate-200 dark:border-white/5 shadow-inner animate-slide-up">
+              <div className="flex justify-between items-center text-xs bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-white/5 shadow-sm">
+                <span className="font-bold text-slate-600 dark:text-slate-300">If missed today:</span>
+                <span className={`font-black text-sm ${wif.newPercentage >= minAttendance ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {formatPct(wif.newPercentage)}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-white/5 shadow-sm">
+                  <p className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">Absent</p>
+                  <p className="text-sm font-black text-slate-800 dark:text-slate-200">{absences}</p>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-900/10 p-2 rounded-lg border border-amber-200 dark:border-amber-500/20 shadow-sm">
+                  <p className="text-[8px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-0.5">Bunks</p>
+                  <p className="text-sm font-black text-amber-700 dark:text-amber-400">{massBunks}</p>
+                </div>
+                <div className="bg-slate-100 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200 dark:border-white/5 shadow-sm">
+                  <p className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">Holidays</p>
+                  <p className="text-sm font-black text-slate-600 dark:text-slate-300">{holidays}</p>
+                </div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Simulator Toggle - Minimal */}
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="w-full flex items-center justify-between py-1 px-2 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-all mb-1"
-        >
-          <div className="flex items-center gap-1.5">
-            <Target className="w-3 h-3 text-surface-400" />
-            <span className="text-[8px] font-black uppercase tracking-widest text-surface-400">Risk Simulation</span>
-          </div>
-          {expanded ? <ChevronUp className="w-3 h-3 opacity-40" /> : <ChevronDown className="w-3 h-3 opacity-40" />}
-        </button>
-
-        {expanded && (
-          <div className="mb-3 p-3 bg-slate-900 dark:bg-black rounded-xl space-y-3 animate-slide-up shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">If missed today</span>
-              <span className={`text-sm font-black ${wif.newPercentage >= minAttendance ? 'text-emerald-500' : 'text-rose-500'}`}>
-                {formatPct(wif.newPercentage)}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { label: 'Absent', val: absences, color: 'text-surface-400' },
-                { label: 'Bunks', val: massBunks, color: 'text-orange-500' },
-                { label: 'Off', val: holidays, color: 'text-surface-500' },
-              ].map(stat => (
-                <div key={stat.label} className="bg-white/5 rounded-lg py-1 px-2 text-center">
-                  <p className="text-[7px] font-black uppercase text-white/30">{stat.label}</p>
-                  <p className={`text-[11px] font-black ${stat.color}`}>{stat.val}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Action Buttons - Smaller/Sleek */}
-      <div className="flex gap-2 mt-4 pt-4 border-t border-surface-100 dark:border-surface-800">
+      {/* Buttons */}
+      <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-white/5">
         <button
           onClick={() => onMark(subject)}
-          className="flex-[2] btn-premium py-2 text-xs"
+          className="flex-1 btn-premium py-2 text-xs font-black"
         >
-          <span>Mark Presence</span>
+          Mark Attendance
         </button>
         <button
           onClick={() => onEdit(subject)}
-          className="flex-1 py-2 rounded-xl bg-surface-50 dark:bg-surface-800 text-surface-500 hover:text-indigo-600 transition-all flex items-center justify-center"
+          className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-indigo-600 border border-slate-200/50 dark:border-white/5 transition-colors"
         >
           <Pencil className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => onDelete(subject._id)}
-          className="flex-1 py-2 rounded-xl bg-red-50 dark:bg-red-900/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+          className="p-2 rounded-xl bg-red-50 dark:bg-red-950/20 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
+
     </div>
   );
 }
