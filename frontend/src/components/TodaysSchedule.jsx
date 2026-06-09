@@ -60,7 +60,6 @@ export default function TodaysSchedule({ subjects, onMark }) {
       <div className="space-y-4">
         {todaysSlots.map((slot, idx) => {
           const sub = slot.subject;
-          const isTheory = slot.weight >= 2;
           
           // Calculate specific what-if-miss parameters for this slot
           const slotWeight = slot.weight || 1;

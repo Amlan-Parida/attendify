@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Pencil, Trash2, AlertCircle,
-  BookOpen, ChevronDown, ChevronUp, Info,
+  ChevronDown, ChevronUp, Info,
   Sparkles, ShieldCheck, ShieldAlert, Target
 } from 'lucide-react';
 import { formatPct, whatIfMiss } from '../utils/attendanceUtils';

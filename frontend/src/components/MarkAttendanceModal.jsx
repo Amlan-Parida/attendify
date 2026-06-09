@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, CheckCircle2, XCircle, Coffee, Users, BookType, FlaskConical, Target, ClipboardList, AlertCircle } from 'lucide-react';
+import { X, Calendar, CheckCircle2, XCircle, Coffee, Users, BookType, FlaskConical, ClipboardList, AlertCircle } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -45,7 +45,6 @@ export default function MarkAttendanceModal({ subject, onClose, onSuccess, prese
 
   const slotStartTime = slot?.start_time || slot?.startTime || '00:00';
   const weight = slot?.weight || subject?.default_weight || subject?.defaultWeight || 1;
-  const isTheory = weight >= 2;
 
   const selectedDay = new Date(date + 'T00:00:00').getDay();
   const hasClassOnSelectedDay = subject.slots?.some(s => Number(s.day) === selectedDay);

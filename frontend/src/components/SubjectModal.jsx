@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, BookOpen, BookType, FlaskConical, Target, CalendarDays, Palette, Sparkles, Check, Plus, Trash2, Clock } from 'lucide-react';
+import { X, BookOpen, BookType, FlaskConical, Target, CalendarDays, Palette, Sparkles, Check, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const COLORS = [
@@ -10,7 +10,6 @@ const COLORS = [
 
 const PRESETS = ['Mathematics', 'Physics', 'Data Structures', 'DBMS', 'Operating Systems', 'English'];
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DAY_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export default function SubjectModal({ subject, onClose, onSave }) {
   const [name, setName] = useState(subject?.name || '');

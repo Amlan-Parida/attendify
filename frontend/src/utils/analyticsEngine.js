@@ -75,6 +75,7 @@ export const computeStats = (records, subject, sessionEndDate, customTargetPct =
       while (currentDay <= end) {
         if (!futureHolidayDates.includes(currentDay.toDateString())) {
           const dayOfWeek = currentDay.getDay();
+          // eslint-disable-next-line no-loop-func
           subject.slots.forEach((slot) => {
             if (slot.day === dayOfWeek) {
               futureUnits += slot.weight || 1;

@@ -1,19 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSubjects } from '../context/SubjectContext';
 import SubjectCard from '../components/SubjectCard';
 import SubjectModal from '../components/SubjectModal';
 import MarkAttendanceModal from '../components/MarkAttendanceModal';
-import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import {
   Plus, RefreshCw, AlertTriangle, CheckCircle2, AlertCircle,
-  BookOpen, Target, Zap, Sparkles,
-  ArrowUpRight
+  BookOpen, Target, Zap, Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { exportDashboardToPDF } from '../utils/exportPdf';
 import BunkersAssistant from '../components/BunkersAssistant';
 import TodaysSchedule from '../components/TodaysSchedule';
 

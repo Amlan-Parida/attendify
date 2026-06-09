@@ -14,7 +14,6 @@ import {
   Moon,
   ChevronRight,
   Brain,
-  Settings,
   HelpCircle,
   Trash2,
   Mail,
