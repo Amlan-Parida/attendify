@@ -273,13 +273,13 @@ export default function DashboardPage() {
               { label: 'Critical', value: summary.critical, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
             ].map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className="w-[38vw] sm:w-auto shrink-0 snap-center">
-                <div className="glass-card p-4 sm:p-5 flex flex-col justify-between hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
-                  <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center ${color}`}>
+                <div className="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
+                  <div className={`w-10 h-10 shrink-0 ${bg} rounded-xl flex items-center justify-center ${color}`}>
                     <Icon className="w-4 h-4" />
                   </div>
-                  <div className="mt-3 sm:mt-4">
-                    <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+                  <div className="flex flex-col justify-center">
+                    <p className="text-lg sm:text-xl leading-none font-black text-slate-900 dark:text-white">{value}</p>
+                    <p className="text-[9px] mt-1 font-black uppercase tracking-widest text-slate-400">{label}</p>
                   </div>
                 </div>
               </div>
