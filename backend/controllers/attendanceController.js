@@ -68,18 +68,32 @@ const markAttendance = async (req, res) => {
       }
     }
 
-    // Build query: if no specific startTime is provided, look for ANY record today to update
-    const query = { user: req.user._id, subject: subjectId, date: normalizedDate };
-    if (startTime && startTime !== '00:00') {
-      query.startTime = startTime;
+    // Build query to find the exact record to update
+    const baseQuery = { user: req.user._id, subject: subjectId, date: normalizedDate };
+    let targetQuery = { ...baseQuery };
+
+    if (slotStartTime !== '00:00') {
+      // Look for the exact specific slot first
+      const exactRecord = await Attendance.findOne({ ...baseQuery, startTime: slotStartTime });
+      if (exactRecord) {
+        targetQuery.startTime = slotStartTime;
+      } else {
+        // If not found, check if there is a generic '00:00' record created from the dashboard
+        const genericRecord = await Attendance.findOne({ ...baseQuery, startTime: '00:00' });
+        if (genericRecord) {
+          // Absorb the generic record into this specific slot
+          targetQuery.startTime = '00:00';
+        } else {
+          targetQuery.startTime = slotStartTime;
+        }
+      }
     }
 
-    // Upsert: update the first matching record if exists, create if not
+    // Upsert: update the matching record, and always enforce the correct startTime
     const record = await Attendance.findOneAndUpdate(
-      query,
+      targetQuery,
       { 
-        $set: { status, note: note || '', weight: slotWeight },
-        $setOnInsert: { startTime: slotStartTime }
+        $set: { status, note: note || '', weight: slotWeight, startTime: slotStartTime }
       },
       { new: true, upsert: true, runValidators: true }
     );
