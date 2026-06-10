@@ -123,9 +123,9 @@ const scanImage = async (req, res) => {
            - 'startTime': string in 24-hour format "HH:MM" (e.g., "07:45", "15:45")
            - 'endTime': string in 24-hour format "HH:MM" (e.g., "08:30", "17:15")
            - 'type': string, either "Theory" or "Lab" (if the slot is a Lab, set to "Lab", otherwise "Theory")
-           - 'weight': number, calculated based on college rules:
-             * For Theory slots: weight = class duration in hours (e.g., a 1-hour class = 1, a 2-hour class = 2).
-             * For Lab slots: weight = 1 point regardless of duration (e.g., a 2-hour lab = 1).
+           - 'weight': integer, calculated based on college rules:
+             * For Theory slots: weight = class duration in hours, rounded to the nearest whole integer, with a minimum of 1 (e.g., a 45-min class = 1, a 1-hour class = 1, a 2-hour class = 2). MUST be an integer.
+             * For Lab slots: weight = 1 point regardless of duration (e.g., a 2-hour lab = 1). MUST be an integer.
          - Also populate the legacy fields on the subject:
            - 'classesPerWeek': total number of slots
            - 'daysOfWeek': array of unique day numbers where slots exist

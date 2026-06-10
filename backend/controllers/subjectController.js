@@ -22,13 +22,18 @@ const createSubject = async (req, res) => {
       return res.status(400).json({ message: 'Subject name is required' });
     }
 
+    const sanitizedSlots = (slots || []).map(slot => ({
+      ...slot,
+      weight: Math.max(1, Math.round(Number(slot.weight) || 1))
+    }));
+
     const subject = await Subject.create({
       user: req.user._id,
       name,
       classesPerWeek: classesPerWeek || 3,
       daysOfWeek: daysOfWeek || [],
-      slots: slots || [],
-      defaultWeight: defaultWeight || 1,
+      slots: sanitizedSlots,
+      defaultWeight: Math.max(1, Math.round(Number(defaultWeight) || 1)),
       minAttendance: minAttendance ?? 75,
       color: color || '#6366f1',
       autoMarkPresent: !!autoMarkPresent,
