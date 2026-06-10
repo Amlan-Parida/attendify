@@ -43,7 +43,10 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { login } = useAuth();
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const { login, verifyOtp, resendOtp } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,12 +61,61 @@ export default function LoginPage() {
     if (!email || !password) return toast.error('Please fill in all fields');
     setLoading(true);
     try {
-      await login({ email, password });
-      navigate('/dashboard');
+      const res = await login({ email, password });
+      if (res?.requiresVerification) {
+        setShowOtpModal(true);
+        toast.error('Please verify your email first. We sent a new code.');
+        await resendOtp({ email });
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      toast.error(err.message || 'Login failed. Please check your credentials.');
+      if (err.message === 'Please verify your email address first') {
+        setShowOtpModal(true);
+        toast.error('Please verify your email. Sending a new code...');
+        await resendOtp({ email });
+      } else {
+        toast.error(err.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+    if (isNaN(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value !== '' && index < 5) {
+      document.getElementById(`login-otp-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    const otpString = otp.join('');
+    if (otpString.length !== 6) {
+      return toast.error('Please enter a valid 6-digit OTP');
+    }
+    
+    setVerifyLoading(true);
+    try {
+      await verifyOtp({ email, otp: otpString });
+      setShowOtpModal(false);
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(err.message || 'Verification failed');
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await resendOtp({ email });
+    } catch (err) {
+      toast.error(err.message || 'Failed to resend OTP');
     }
   };
 
@@ -236,6 +288,62 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 w-screen h-screen z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="glass-card w-full max-w-md bg-white dark:bg-slate-900 shadow-glow-lg border-white/20 p-8 rounded-3xl animate-slide-up relative">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 shadow-inner">
+                <Mail className="w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Verify your email</h2>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">
+                We've sent a 6-digit code to <span className="text-indigo-600 dark:text-indigo-400">{email}</span>
+              </p>
+
+              <form onSubmit={handleVerifyOtp} className="w-full space-y-8">
+                <div className="flex justify-center gap-2 sm:gap-3">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`login-otp-${index}`}
+                      type="text"
+                      maxLength="1"
+                      className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none"
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && !digit && index > 0) {
+                          document.getElementById(`login-otp-${index - 1}`)?.focus();
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={verifyLoading}
+                  className="btn-premium w-full h-14 text-base"
+                >
+                  {verifyLoading ? 'Verifying...' : 'Complete Verification'}
+                </button>
+              </form>
+
+              <p className="mt-8 text-sm font-bold text-slate-500 dark:text-slate-400">
+                Didn't receive the code?{' '}
+                <button 
+                  onClick={handleResendOtp}
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline underline-offset-4 transition-colors"
+                >
+                  Resend OTP
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

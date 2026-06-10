@@ -47,6 +47,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.post('/auth/signup', { name, email, password });
       
+      if (data.requiresVerification) {
+        return data;
+      }
+      
       const userPayload = {
         _id: data._id,
         name: data.name,
@@ -59,7 +63,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('attendify_user', JSON.stringify(userPayload));
       setUser(userPayload);
       
-      // toast.success('Registration successful!'); // handled in component or later
       return data;
     } catch (err) {
       const message = err.response?.data?.message || err.message;
