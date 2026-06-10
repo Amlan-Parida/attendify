@@ -59,24 +59,35 @@ const computeStats = (records, subject, sessionEndDate, customTargetPct = null) 
     const end = new Date(today);
     end.setHours(23, 59, 59, 999);
     
-    const existingDates = new Set(
-      records.map(r => new Date(r.date).toISOString().split('T')[0])
-    );
+    const existingDateSlots = new Set();
+    const existingFullDates = new Set();
+
+    records.forEach(r => {
+      const dateStr = new Date(r.date).toISOString().split('T')[0];
+      if (r.startTime) {
+        existingDateSlots.add(`${dateStr}_${r.startTime}`);
+      } else {
+        existingFullDates.add(dateStr);
+      }
+    });
     
     let currentDay = new Date(start);
     while (currentDay <= end) {
       const dayOfWeek = currentDay.getDay();
       const dateString = currentDay.toISOString().split('T')[0];
       
-      if (!existingDates.has(dateString)) {
+      if (!existingFullDates.has(dateString)) {
         if (subject.slots && subject.slots.length > 0) {
           subject.slots.forEach(slot => {
             if (Number(slot.day) === dayOfWeek) {
-              activeRecords.push({
-                status: 'Present',
-                date: dateString,
-                weight: slot.weight || 1
-              });
+              const slotKey = `${dateString}_${slot.startTime}`;
+              if (!existingDateSlots.has(slotKey)) {
+                activeRecords.push({
+                  status: 'Present',
+                  date: dateString,
+                  weight: slot.weight || 1
+                });
+              }
             }
           });
         }

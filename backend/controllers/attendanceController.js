@@ -53,40 +53,39 @@ const markAttendance = async (req, res) => {
     const normalizedDate = new Date(date);
     normalizedDate.setUTCHours(0, 0, 0, 0);
 
-    // Determine weight:
-    // 1. If a specific startTime slot is provided and matched → use slot weight
-    // 2. Otherwise → use subject.defaultWeight
-    // Calculate TOTAL combined weight of all slots scheduled for this day
     const dayOfWeek = normalizedDate.getDay();
     let dailyWeight = subject.defaultWeight || 1;
+    let queryFilter = { user: req.user._id, subject: subjectId, date: normalizedDate };
 
-    if (subject.slots && subject.slots.length > 0) {
-      const slotsToday = subject.slots.filter((s) => Number(s.day) === dayOfWeek);
-      if (slotsToday.length > 0) {
-        dailyWeight = slotsToday.reduce((sum, s) => sum + (Number(s.weight) || 1), 0);
+    if (startTime && subject.slots && subject.slots.length > 0) {
+      const specificSlot = subject.slots.find((s) => Number(s.day) === dayOfWeek && s.startTime === startTime);
+      if (specificSlot) {
+        dailyWeight = Number(specificSlot.weight) || 1;
+      }
+      queryFilter.startTime = startTime;
+    } else {
+      if (subject.slots && subject.slots.length > 0) {
+        const slotsToday = subject.slots.filter((s) => Number(s.day) === dayOfWeek);
+        if (slotsToday.length > 0) {
+          dailyWeight = slotsToday.reduce((sum, s) => sum + (Number(s.weight) || 1), 0);
+        }
       }
     }
 
-    // ENFORCE EXACTLY ONE RECORD PER DAY
-    // First, find all records for this subject today
-    const existingRecords = await Attendance.find({ 
-      user: req.user._id, 
-      subject: subjectId, 
-      date: normalizedDate 
-    });
+    // ENFORCE EXACTLY ONE RECORD PER QUERY FILTER (Per day if no startTime, per slot if startTime)
+    const existingRecords = await Attendance.find(queryFilter);
 
-    // If there are duplicates (from the previous glitch), delete all but the first one
     if (existingRecords.length > 1) {
       const recordsToDelete = existingRecords.slice(1).map(r => r._id);
       await Attendance.deleteMany({ _id: { $in: recordsToDelete } });
     }
 
-    // Upsert the single record for the day
+    const updatePayload = { status, note: note || '', weight: dailyWeight };
+    if (startTime) updatePayload.startTime = startTime;
+
     const record = await Attendance.findOneAndUpdate(
-      { user: req.user._id, subject: subjectId, date: normalizedDate },
-      { 
-        $set: { status, note: note || '', weight: dailyWeight }
-      },
+      queryFilter,
+      { $set: updatePayload },
       { new: true, upsert: true, runValidators: true }
     );
 
