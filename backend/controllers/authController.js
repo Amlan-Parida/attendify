@@ -216,10 +216,13 @@ const verifyOTP = async (req, res) => {
     }
 
     // OTP is valid
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      { 
+        $set: { isVerified: true },
+        $unset: { otp: 1, otpExpires: 1 }
+      }
+    );
 
     res.status(200).json({
       message: 'Email verified successfully',
@@ -259,9 +262,12 @@ const resendOTP = async (req, res) => {
 
     // Generate new OTP
     const otp = generateOTP();
-    user.otp = otp;
-    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    await user.save();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { otp, otpExpires } }
+    );
 
     // Send Email
     const emailHtml = `
