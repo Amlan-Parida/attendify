@@ -73,11 +73,11 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-6 left-0 right-0 z-[100] px-6 pointer-events-none">
+    <nav className="fixed top-4 sm:top-6 left-0 right-0 z-[100] px-4 sm:px-6 pointer-events-none">
       <div className={`max-w-6xl mx-auto flex items-center justify-between pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] !overflow-visible ${
         scrolled 
-          ? 'h-16 px-6 glass-card shadow-glow-sm scale-[0.98]' 
-          : 'h-20 px-8 glass-card bg-white/20 dark:bg-surface-900/20 border-transparent shadow-none'
+          ? 'h-16 px-4 sm:px-6 glass-card shadow-glow-sm scale-[0.98]' 
+          : 'h-20 px-5 sm:px-8 glass-card bg-white/20 dark:bg-surface-900/20 border-transparent shadow-none'
       }`}>
         
         {/* Logo Section */}
@@ -191,9 +191,9 @@ export default function Navbar() {
 
       {/* Modern Mobile Overlay */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[110] p-6 lg:hidden animate-fade-in pointer-events-auto">
+        <div className="fixed inset-0 z-[110] p-4 sm:p-6 lg:hidden animate-fade-in pointer-events-auto">
           <div className="absolute inset-0 bg-surface-950/60 backdrop-blur-2xl" onClick={() => setMenuOpen(false)}></div>
-          <div className="relative h-full bg-white dark:bg-surface-900 rounded-[3rem] border border-white/20 shadow-glow-lg p-10 flex flex-col justify-between animate-slide-up">
+          <div className="relative h-full bg-white dark:bg-surface-900 rounded-[2rem] sm:rounded-[3rem] border border-white/20 shadow-glow-lg p-6 sm:p-10 flex flex-col justify-between animate-slide-up">
             <div className="space-y-12">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -213,7 +213,7 @@ export default function Navbar() {
                     key={to}
                     to={to}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center justify-between px-8 py-6 rounded-[2rem] text-2xl font-black transition-all ${
+                    className={`flex items-center justify-between px-6 sm:px-8 py-5 sm:py-6 rounded-2xl sm:rounded-[2rem] text-xl sm:text-2xl font-black transition-all ${
                       location.pathname === to
                         ? 'bg-primary-600 text-white shadow-glow'
                         : 'text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800'

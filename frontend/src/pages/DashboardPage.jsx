@@ -89,7 +89,7 @@ export default function DashboardPage() {
   const gamification = getGamification(allRecords);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-6 space-y-12">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 pt-24 sm:pt-6 pb-6 space-y-8 sm:space-y-12">
       
       {/* 🚀 PREMIUM COMPACT HEADER */}
       <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-2xl group bg-white dark:bg-slate-950 animate-slide-up">
@@ -145,7 +145,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 📚 SUBJECTS GRID */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-600/10 flex items-center justify-center text-indigo-600">
@@ -194,14 +194,14 @@ export default function DashboardPage() {
       </div>
 
       {/* 🍱 BENTO GRID SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-stretch">
         
         <div className="md:col-span-8 animate-slide-up animate-stagger-1">
           <BunkersAssistant subjects={enrichedSubjects} user={user} />
         </div>
 
         {/* Quick Stats */}
-        <div className="md:col-span-4 grid grid-cols-2 gap-4 animate-slide-up animate-stagger-2">
+        <div className="md:col-span-4 grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up animate-stagger-2">
           {[
             { label: 'Total', value: summary.total, icon: BookOpen, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
             { label: 'Safe', value: summary.safe, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },

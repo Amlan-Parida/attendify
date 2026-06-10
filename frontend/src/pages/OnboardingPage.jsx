@@ -184,7 +184,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-aurora p-6 md:p-12">
+    <div className="min-h-screen flex items-center justify-center bg-aurora p-4 sm:p-6 md:p-12 pt-24 sm:pt-6">
       <div className="w-full max-w-xl glass-card animate-fade-in group">
         
         {/* Header */}
@@ -222,7 +222,7 @@ export default function OnboardingPage() {
                   <input type="text" className="premium-input pl-16 h-16" value={college} onChange={e => setCollege(e.target.value)} placeholder="e.g. Stanford University" autoFocus required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
                   <label className="label">Academic Year (1-8)</label>
                   <input 

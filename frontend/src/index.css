@@ -219,3 +219,23 @@
 .fc-col-header-cell-cushion {
   @apply font-black uppercase text-[10px] tracking-[0.2em] text-surface-400 py-4 !important;
 }
+
+@media (max-width: 640px) {
+  .fc .fc-toolbar {
+    @apply flex-col gap-3 !important;
+  }
+  .fc .fc-toolbar-title {
+    @apply text-xl !important;
+  }
+  .fc .fc-button-primary {
+    @apply px-4 py-2 text-[9px] !important;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

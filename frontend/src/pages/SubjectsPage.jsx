@@ -35,7 +35,7 @@ export default function SubjectsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-10 pb-10 space-y-8 animate-fade-in">
       {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
@@ -45,7 +45,7 @@ export default function SubjectsPage() {
             </div>
             <h1 className="text-3xl font-black text-surface-900 dark:text-white tracking-tight">Curriculum</h1>
           </div>
-          <p className="text-sm font-bold text-surface-400 dark:text-surface-500 flex items-center gap-2 ml-15">
+          <p className="text-sm font-bold text-surface-400 dark:text-surface-500 flex items-center gap-2 ml-0 sm:ml-[60px]">
             Managing <span className="text-primary-600 dark:text-primary-400">{subjects.length} active subjects</span> in your current semester
           </p>
         </div>
