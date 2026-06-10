@@ -62,8 +62,8 @@ export default function BunkersAssistant({ subjects, user }) {
             </div>
           </div>
           
-          <p className="text-slate-700 dark:text-slate-300 text-sm md:text-base font-bold leading-relaxed break-words w-full">
-            "{message}"
+          <p className="text-slate-800 dark:text-slate-200 text-base md:text-lg font-bold leading-relaxed break-words w-full">
+            {message}
           </p>
           
           <div className="flex items-center justify-center md:justify-start gap-5 pt-2 flex-wrap">

@@ -234,27 +234,32 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <select
-                className="premium-input text-sm h-12"
-                value={predictSubject?._id || ''}
-                onChange={(e) => {
-                  const s = enrichedSubjects.find((s) => s._id === e.target.value);
-                  setPredictSubject(s || null);
-                  setPredResult(null);
-                }}
-              >
-                <option value="">Select subject...</option>
-                {enrichedSubjects.map((s) => (
-                  <option key={s._id} value={s._id}>{s.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  className="w-full h-12 px-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none shadow-sm cursor-pointer"
+                  value={predictSubject?._id || ''}
+                  onChange={(e) => {
+                    const s = enrichedSubjects.find((s) => s._id === e.target.value);
+                    setPredictSubject(s || null);
+                    setPredResult(null);
+                  }}
+                >
+                  <option value="">Select subject...</option>
+                  {enrichedSubjects.map((s) => (
+                    <option key={s._id} value={s._id}>{s.name}</option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
               <div className="relative">
                 <input
                   type="number" min="1" max="100" value={targetPct}
                   onChange={(e) => { setTargetPct(Number(e.target.value)); setPredResult(null); }}
-                  className="premium-input text-sm h-12 pl-10"
+                  className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
                 />
-                <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
               </div>
             </div>
             <button onClick={handlePredict} disabled={!predictSubject || predLoading} className="btn-premium w-full h-12 text-sm">
