@@ -39,7 +39,8 @@ const createSubject = async (req, res) => {
     if (error.code === 11000) {
       return res.status(409).json({ message: 'A subject with this name already exists' });
     }
-    res.status(500).json({ message: 'Failed to create subject', error: error.message });
+    console.error('Failed to create subject:', error);
+    res.status(500).json({ message: `Failed to create subject: ${error.message}` });
   }
 };
 
