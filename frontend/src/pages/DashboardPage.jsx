@@ -7,8 +7,8 @@ import MarkAttendanceModal from '../components/MarkAttendanceModal';
 import toast from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import {
-  Plus, RefreshCw, AlertTriangle, CheckCircle2, AlertCircle,
-  BookOpen, Target, Zap, Sparkles
+  Plus, RefreshCw, Target, Sparkles,
+  Layers, ShieldCheck, Activity, Flame, Compass
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import BunkersAssistant from '../components/BunkersAssistant';
@@ -209,7 +209,7 @@ export default function DashboardPage() {
             <div className="glass-card p-4 sm:p-6 relative overflow-hidden group border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
-                <Zap className="w-5 h-5 text-indigo-500" /> Strategy Lab
+                <Compass className="w-5 h-5 text-indigo-500" /> Strategy Lab
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -267,10 +267,10 @@ export default function DashboardPage() {
           {/* Quick Stats */}
           <div className="flex sm:grid sm:grid-cols-2 gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 animate-slide-up animate-stagger-2">
             {[
-              { label: 'Total', value: summary.total, icon: BookOpen, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-              { label: 'Safe', value: summary.safe, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-              { label: 'Alert', value: summary.warning, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-              { label: 'Critical', value: summary.critical, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
+              { label: 'Total', value: summary.total, icon: Layers, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+              { label: 'Safe', value: summary.safe, icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+              { label: 'Alert', value: summary.warning, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+              { label: 'Critical', value: summary.critical, icon: Flame, color: 'text-red-500', bg: 'bg-red-500/10' },
             ].map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className="w-[38vw] sm:w-auto shrink-0 snap-center">
                 <div className="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">

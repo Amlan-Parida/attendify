@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar as CalendarIcon, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, Check, Clock } from 'lucide-react';
 
 export default function TodaysSchedule({ subjects, onMark }) {
   const today = new Date().getDay();
@@ -115,7 +115,7 @@ export default function TodaysSchedule({ subjects, onMark }) {
                   className="w-10 h-10 rounded-[0.8rem] bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-glow-sm hover:shadow-[0_0_20px_rgba(99,102,241,0.6)]"
                   title="Mark Present"
                 >
-                  <CheckCircle2 className="w-5 h-5" />
+                  <Check className="w-5 h-5" />
                 </button>
               </div>
             </div>
