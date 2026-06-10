@@ -134,6 +134,26 @@ export default function SubjectModal({ subject, onClose, onSave }) {
           )}
         </div>
 
+        {/* Auto-Mark Present Toggle */}
+        <div className="space-y-3 p-4 bg-indigo-50/35 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-white/5">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={autoMarkPresent} 
+              onChange={(e) => setAutoMarkPresent(e.target.checked)}
+              className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+            />
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                Auto-Mark Present
+              </span>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Automatically assume present for past sessions unless manually marked absent.
+              </p>
+            </div>
+          </label>
+        </div>
+
         {/* Sessions Manager */}
         <div className="space-y-4">
           <div className="flex items-center justify-between ml-1">
@@ -262,25 +282,7 @@ export default function SubjectModal({ subject, onClose, onSave }) {
           </div>
         </div>
 
-        {/* Auto-Mark Present Toggle */}
-        <div className="space-y-3 p-4 bg-indigo-50/35 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-white/5">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={autoMarkPresent} 
-              onChange={(e) => setAutoMarkPresent(e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
-            />
-            <div>
-              <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                Auto-Mark Present
-              </span>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                Automatically assume present for past sessions unless manually marked absent.
-              </p>
-            </div>
-          </label>
-        </div>
+
 
         {/* Submit Actions */}
         <div className="flex gap-4 pt-4">

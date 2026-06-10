@@ -6,9 +6,11 @@ try {
   const path = require('path');
   const dotenv = require('dotenv');
   const connectDB = require('./config/db');
+  const startCronJobs = require('./utils/cron');
 
   dotenv.config({ path: path.resolve(__dirname, '.env') });
   connectDB();
+  startCronJobs();
 
   app.use(
     cors({
