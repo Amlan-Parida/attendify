@@ -197,37 +197,16 @@ export default function DashboardPage() {
       </div>
 
       {/* 🍱 BENTO GRID SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-stretch">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start">
         
-        <div className="md:col-span-8 animate-slide-up animate-stagger-1">
-          <BunkersAssistant subjects={enrichedSubjects} user={user} />
-        </div>
-
-        {/* Quick Stats */}
-        <div className="md:col-span-4 flex sm:grid sm:grid-cols-2 gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 animate-slide-up animate-stagger-2">
-          {[
-            { label: 'Total', value: summary.total, icon: BookOpen, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-            { label: 'Safe', value: summary.safe, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-            { label: 'Alert', value: summary.warning, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-            { label: 'Critical', value: summary.critical, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
-          ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="w-[38vw] sm:w-auto shrink-0 snap-center">
-              <div className="glass-card p-4 sm:p-5 flex flex-col justify-between hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
-                <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center ${color}`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="mt-3 sm:mt-4">
-                  <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Predictor */}
-        <div className="md:col-span-6 animate-slide-up animate-stagger-3 h-full">
-          <div className="glass-card p-4 sm:p-6 h-full relative overflow-hidden group border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
+        {/* Left Column */}
+        <div className="flex-1 flex flex-col gap-4 sm:gap-6 w-full min-w-0">
+          <div className="animate-slide-up animate-stagger-1 w-full">
+            <BunkersAssistant subjects={enrichedSubjects} user={user} />
+          </div>
+          {/* Predictor */}
+          <div className="animate-slide-up animate-stagger-3 w-full">
+            <div className="glass-card p-4 sm:p-6 relative overflow-hidden group border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                 <Zap className="w-5 h-5 text-indigo-500" /> Strategy Lab
@@ -281,14 +260,40 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+        </div>
 
-        {/* Schedule */}
-        <div className="md:col-span-6 animate-slide-up animate-stagger-4 h-full">
-          <div className="h-full glass-card border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 p-0 overflow-hidden shadow-md">
+        {/* Right Column */}
+        <div className="w-full lg:w-[400px] xl:w-[450px] shrink-0 flex flex-col gap-4 sm:gap-6">
+          {/* Quick Stats */}
+          <div className="flex sm:grid sm:grid-cols-2 gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 animate-slide-up animate-stagger-2">
+            {[
+              { label: 'Total', value: summary.total, icon: BookOpen, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+              { label: 'Safe', value: summary.safe, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+              { label: 'Alert', value: summary.warning, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+              { label: 'Critical', value: summary.critical, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
+            ].map(({ label, value, icon: Icon, color, bg }) => (
+              <div key={label} className="w-[38vw] sm:w-auto shrink-0 snap-center">
+                <div className="glass-card p-4 sm:p-5 flex flex-col justify-between hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
+                  <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center ${color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="mt-3 sm:mt-4">
+                    <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Schedule */}
+          <div className="animate-slide-up animate-stagger-4 w-full">
+            <div className="glass-card border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 p-0 overflow-hidden shadow-md">
             <TodaysSchedule subjects={enrichedSubjects} onMark={(s, slot) => {
               setMarkSubject(s);
               setMarkSlot(slot);
             }} />
+            </div>
           </div>
         </div>
 
