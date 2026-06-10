@@ -56,7 +56,7 @@ export default function MarkAttendanceModal({ subject, onClose, onSuccess, prese
   useEffect(() => {
     const checkExisting = async () => {
       try {
-        const { data } = await api.get(`/attendance?subjectId=${subject._id || subject.id}&startDate=${date}&endDate=${date}&startTime=${slotStartTime}`);
+        const { data } = await api.get(`/attendance?subjectId=${subject._id || subject.id}&startDate=${date}&endDate=${date}`);
         if (data && data.length > 0) {
           setExistingRecord(data[0]);
           setStatus(data[0].status);
@@ -85,7 +85,6 @@ export default function MarkAttendanceModal({ subject, onClose, onSuccess, prese
       await api.post('/attendance', {
         subjectId: subject._id || subject.id,
         date,
-        startTime: slotStartTime,
         status,
         note: isInterchanged ? `[Interchanged] ${note}`.trim() : note,
       });

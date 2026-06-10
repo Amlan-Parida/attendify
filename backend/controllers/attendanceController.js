@@ -58,9 +58,8 @@ const markAttendance = async (req, res) => {
     // 2. Otherwise → use subject.defaultWeight (Theory=2, Lab=1)
     // This keeps the simple daily-mark flow: user just marks Present/Absent,
     // and the correct weight is applied automatically.
-    let slotStartTime = startTime || '00:00';
+    // Calculate slot weight if a slot was provided
     let slotWeight = subject.defaultWeight || 1;
-
     if (startTime && subject.slots && subject.slots.length > 0) {
       const matchingSlot = subject.slots.find((s) => s.startTime === startTime);
       if (matchingSlot) {
@@ -68,32 +67,25 @@ const markAttendance = async (req, res) => {
       }
     }
 
-    // Build query to find the exact record to update
-    const baseQuery = { user: req.user._id, subject: subjectId, date: normalizedDate };
-    let targetQuery = { ...baseQuery };
+    // ENFORCE EXACTLY ONE RECORD PER DAY
+    // First, find all records for this subject today
+    const existingRecords = await Attendance.find({ 
+      user: req.user._id, 
+      subject: subjectId, 
+      date: normalizedDate 
+    });
 
-    if (slotStartTime !== '00:00') {
-      // Look for the exact specific slot first
-      const exactRecord = await Attendance.findOne({ ...baseQuery, startTime: slotStartTime });
-      if (exactRecord) {
-        targetQuery.startTime = slotStartTime;
-      } else {
-        // If not found, check if there is a generic '00:00' record created from the dashboard
-        const genericRecord = await Attendance.findOne({ ...baseQuery, startTime: '00:00' });
-        if (genericRecord) {
-          // Absorb the generic record into this specific slot
-          targetQuery.startTime = '00:00';
-        } else {
-          targetQuery.startTime = slotStartTime;
-        }
-      }
+    // If there are duplicates (from the previous glitch), delete all but the first one
+    if (existingRecords.length > 1) {
+      const recordsToDelete = existingRecords.slice(1).map(r => r._id);
+      await Attendance.deleteMany({ _id: { $in: recordsToDelete } });
     }
 
-    // Upsert: update the matching record, and always enforce the correct startTime
+    // Upsert the single record for the day
     const record = await Attendance.findOneAndUpdate(
-      targetQuery,
+      { user: req.user._id, subject: subjectId, date: normalizedDate },
       { 
-        $set: { status, note: note || '', weight: slotWeight, startTime: slotStartTime }
+        $set: { status, note: note || '', weight: slotWeight }
       },
       { new: true, upsert: true, runValidators: true }
     );

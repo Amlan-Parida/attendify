@@ -50,8 +50,7 @@ const startCronJobs = () => {
             { 
               user: subject.user, 
               subject: subject._id, 
-              date: normalizedDate, 
-              startTime: slot.startTime 
+              date: normalizedDate
             },
             {
               $setOnInsert: {
