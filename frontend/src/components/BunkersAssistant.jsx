@@ -40,12 +40,12 @@ export default function BunkersAssistant({ subjects, user }) {
       {/* Carbon Fibre Texture Overlay */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
 
-      <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:text-left bg-white/40 dark:bg-slate-950/40 backdrop-blur-md rounded-[1.8rem]">
+      <div className="relative z-10 p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 items-center sm:items-start text-center sm:text-left bg-white/40 dark:bg-slate-950/40 backdrop-blur-md rounded-[1.8rem]">
         {/* AI Brain Icon - Premium glowing orb */}
         <div className="relative flex-shrink-0">
           <div className="absolute inset-0 bg-indigo-500/30 blur-xl opacity-60 animate-pulse-slow"></div>
-          <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-[1.2rem] bg-white dark:bg-white/10 backdrop-blur-2xl flex items-center justify-center border border-white/50 dark:border-white/20 shadow-lg group-hover:scale-105 transition-transform duration-500">
-            <BrainCircuit className="w-8 h-8 text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 transition-transform duration-500" />
+          <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-[1.2rem] bg-white dark:bg-white/10 backdrop-blur-2xl flex items-center justify-center border border-white/50 dark:border-white/20 shadow-lg group-hover:scale-105 transition-transform duration-500">
+            <BrainCircuit className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 transition-transform duration-500" />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-[3px] border-white dark:border-slate-900 shadow-sm animate-pulse"></div>
           </div>
         </div>

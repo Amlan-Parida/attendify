@@ -57,7 +57,7 @@ export default function TodaysSchedule({ subjects, onMark }) {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex sm:flex-col gap-4 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-4 -mx-6 px-6 md:-mx-8 md:px-8 sm:mx-0 sm:px-0 sm:pb-0">
         {todaysSlots.map((slot, idx) => {
           const sub = slot.subject;
           
@@ -70,7 +70,7 @@ export default function TodaysSchedule({ subjects, onMark }) {
           return (
             <div
               key={`${sub._id}-${idx}`}
-              className="group relative overflow-hidden bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300 flex items-center justify-between gap-5 shadow-sm hover:shadow-lg"
+              className="group relative overflow-hidden bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 shadow-sm hover:shadow-lg w-[85vw] sm:w-auto shrink-0 snap-center"
             >
               <div className="flex items-center gap-5 min-w-0 flex-1">
                 <div className="w-2 h-12 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: sub.color }}></div>
@@ -111,7 +111,7 @@ export default function TodaysSchedule({ subjects, onMark }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center justify-end gap-3 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-slate-100 dark:border-white/5 sm:border-0">
                 <button
                   onClick={() => onMark(sub, slot)}
                   className="w-12 h-12 rounded-[1rem] bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-glow-sm hover:shadow-[0_0_20px_rgba(99,102,241,0.6)]"

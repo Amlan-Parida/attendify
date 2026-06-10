@@ -165,30 +165,33 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slide-up">
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 animate-slide-up">
             {enrichedSubjects.map((subject) => (
-              <SubjectCard
-                key={subject._id}
-                subject={subject}
-                onEdit={(s) => setEditSubject(s)}
-                onDelete={handleDeleteSubject}
-                onMark={(s) => setMarkSubject(s)}
-              />
+              <div key={subject._id} className="w-[85vw] sm:w-auto shrink-0 snap-center flex flex-col">
+                <SubjectCard
+                  subject={subject}
+                  onEdit={(s) => setEditSubject(s)}
+                  onDelete={handleDeleteSubject}
+                  onMark={(s) => setMarkSubject(s)}
+                />
+              </div>
             ))}
 
             {/* 🆕 ADD NEW SUBJECT TILE */}
-            <button 
-              onClick={() => setShowSubjectModal(true)}
-              className="glass-card group relative overflow-hidden flex flex-col items-center justify-center gap-4 min-h-[220px] border-dashed border-2 border-indigo-200 dark:border-white/10 bg-indigo-50/30 dark:bg-slate-900/40 hover:bg-indigo-50 dark:hover:bg-slate-900 transition-all duration-500 shadow-sm"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-90 transition-all duration-500 shadow-glow-sm">
-                <Plus className="w-8 h-8" />
-              </div>
-              <div className="text-center px-4">
-                <p className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Expand Curriculum</p>
-                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Register a new subject</p>
-              </div>
-            </button>
+            <div className="w-[85vw] sm:w-auto shrink-0 snap-center flex flex-col">
+              <button 
+                onClick={() => setShowSubjectModal(true)}
+                className="glass-card h-full group relative overflow-hidden flex flex-col items-center justify-center gap-4 min-h-[220px] border-dashed border-2 border-indigo-200 dark:border-white/10 bg-indigo-50/30 dark:bg-slate-900/40 hover:bg-indigo-50 dark:hover:bg-slate-900 transition-all duration-500 shadow-sm"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center group-hover:scale-110 group-hover:rotate-90 transition-all duration-500 shadow-glow-sm">
+                  <Plus className="w-8 h-8" />
+                </div>
+                <div className="text-center px-4">
+                  <p className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Expand Curriculum</p>
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Register a new subject</p>
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -201,20 +204,22 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="md:col-span-4 grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up animate-stagger-2">
+        <div className="md:col-span-4 flex sm:grid sm:grid-cols-2 gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory hide-scrollbar pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 animate-slide-up animate-stagger-2">
           {[
             { label: 'Total', value: summary.total, icon: BookOpen, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
             { label: 'Safe', value: summary.safe, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
             { label: 'Alert', value: summary.warning, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
             { label: 'Critical', value: summary.critical, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="glass-card p-5 flex flex-col justify-between hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
-              <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center ${color}`}>
-                <Icon className="w-4 h-4" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+            <div key={label} className="w-[38vw] sm:w-auto shrink-0 snap-center">
+              <div className="glass-card p-4 sm:p-5 flex flex-col justify-between hover:scale-[1.02] active:scale-[0.98] h-full border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
+                <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center ${color}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="mt-3 sm:mt-4">
+                  <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -222,7 +227,7 @@ export default function DashboardPage() {
 
         {/* Predictor */}
         <div className="md:col-span-6 animate-slide-up animate-stagger-3 h-full">
-          <div className="glass-card p-6 h-full relative overflow-hidden group border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
+          <div className="glass-card p-4 sm:p-6 h-full relative overflow-hidden group border-slate-200 dark:border-none bg-white dark:bg-slate-900/80 shadow-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                 <Zap className="w-5 h-5 text-indigo-500" /> Strategy Lab
