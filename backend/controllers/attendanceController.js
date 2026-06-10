@@ -68,10 +68,19 @@ const markAttendance = async (req, res) => {
       }
     }
 
-    // Upsert: update if exists, create if not
+    // Build query: if no specific startTime is provided, look for ANY record today to update
+    const query = { user: req.user._id, subject: subjectId, date: normalizedDate };
+    if (startTime && startTime !== '00:00') {
+      query.startTime = startTime;
+    }
+
+    // Upsert: update the first matching record if exists, create if not
     const record = await Attendance.findOneAndUpdate(
-      { user: req.user._id, subject: subjectId, date: normalizedDate, startTime: slotStartTime },
-      { status, note: note || '', weight: slotWeight },
+      query,
+      { 
+        $set: { status, note: note || '', weight: slotWeight },
+        $setOnInsert: { startTime: slotStartTime }
+      },
       { new: true, upsert: true, runValidators: true }
     );
 
