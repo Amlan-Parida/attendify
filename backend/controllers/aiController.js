@@ -1,3 +1,8 @@
+// Polyfill for DOMMatrix which is missing in Vercel Node.js environments
+if (typeof global.DOMMatrix === 'undefined') {
+  global.DOMMatrix = class DOMMatrix { constructor() {} };
+}
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
