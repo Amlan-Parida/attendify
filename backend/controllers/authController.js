@@ -133,6 +133,7 @@ const login = async (req, res) => {
       email: user.email,
       onboardingComplete: user.onboardingComplete,
       sessionEndDate: user.sessionEndDate,
+      globalAutoMark: user.globalAutoMark,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -151,6 +152,7 @@ const getMe = async (req, res) => {
     email: req.user.email,
     onboardingComplete: req.user.onboardingComplete,
     sessionEndDate: req.user.sessionEndDate,
+    globalAutoMark: req.user.globalAutoMark,
   });
 };
 
@@ -159,7 +161,7 @@ const getMe = async (req, res) => {
 // @access  Private
 const updateSettings = async (req, res) => {
   try {
-    const { sessionEndDate, college, year, section, onboardingComplete } = req.body;
+    const { sessionEndDate, college, year, section, onboardingComplete, globalAutoMark } = req.body;
     const user = await User.findById(req.user._id);
     
     if (sessionEndDate) {
@@ -169,6 +171,7 @@ const updateSettings = async (req, res) => {
     if (year !== undefined) user.year = year;
     if (section !== undefined) user.section = section;
     if (onboardingComplete !== undefined) user.onboardingComplete = onboardingComplete;
+    if (globalAutoMark !== undefined) user.globalAutoMark = globalAutoMark;
     
     await user.save();
     res.json({
@@ -180,6 +183,7 @@ const updateSettings = async (req, res) => {
       section: user.section,
       onboardingComplete: user.onboardingComplete,
       sessionEndDate: user.sessionEndDate,
+      globalAutoMark: user.globalAutoMark,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error updating settings', error: error.message });

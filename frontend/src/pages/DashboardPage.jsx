@@ -17,7 +17,7 @@ import TodaysSchedule from '../components/TodaysSchedule';
 import { computeStats, getDashboardSummary, getGamification } from '../utils/analyticsEngine';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { subjects, fetchSubjects, createSubject, updateSubject, deleteSubject, loadingSubjects } = useSubjects();
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [editSubject, setEditSubject] = useState(null);
@@ -191,6 +191,53 @@ export default function DashboardPage() {
                   <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Register a new subject</p>
                 </div>
               </button>
+            </div>
+
+            {/* 🤖 GLOBAL AUTOMATION TILE */}
+            <div className="w-[85vw] sm:w-auto shrink-0 snap-center flex flex-col">
+              <div 
+                className="glass-card h-full relative overflow-hidden flex flex-col items-center justify-center gap-4 min-h-[220px] border-2 border-fuchsia-200 dark:border-fuchsia-500/20 bg-gradient-to-b from-fuchsia-50/30 to-violet-50/30 dark:from-fuchsia-900/20 dark:to-violet-900/20 shadow-sm"
+              >
+                <div className="absolute top-0 right-0 p-2">
+                  <Sparkles className="w-4 h-4 text-fuchsia-500 animate-pulse" />
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-violet-600 text-white flex items-center justify-center shadow-glow-sm">
+                  <Activity className="w-8 h-8" />
+                </div>
+                <div className="text-center px-4 w-full">
+                  <p className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Global Automation</p>
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Auto-Mark All Classes</p>
+                  
+                  <label className="relative inline-flex items-center cursor-pointer justify-center w-full">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={user?.globalAutoMark || false}
+                      onChange={async (e) => {
+                        try {
+                          // Note: fetch URL should use backend api utility to handle auth automatically, but for quick toggle fetch is fine
+                          // Better: use the same 'api' from utils/api.js, wait I'll just use fetch but we don't have api imported here. Let's just use the native fetch.
+                          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/settings`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${localStorage.getItem('attendify_token')}`,
+                            },
+                            body: JSON.stringify({ globalAutoMark: e.target.checked }),
+                          });
+                          if (!res.ok) throw new Error('Failed to update');
+                          const data = await res.json();
+                          updateUser(data);
+                          toast.success(e.target.checked ? 'Global Automation Enabled!' : 'Global Automation Disabled!');
+                        } catch (err) {
+                          toast.error('Failed to update automation setting');
+                        }
+                      }}
+                    />
+                    <div className="w-14 h-7 bg-white/50 peer-focus:outline-none rounded-full peer dark:bg-slate-900/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-fuchsia-500 shadow-inner"></div>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         )}

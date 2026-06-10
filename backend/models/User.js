@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    globalAutoMark: {
+      type: Boolean,
+      default: false,
+    },
     otp: {
       type: String,
     },

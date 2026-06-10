@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const Subject = require('../models/Subject');
 const Attendance = require('../models/Attendance');
+const User = require('../models/User');
 
 const startCronJobs = () => {
   // Run every minute
@@ -17,8 +18,18 @@ const startCronJobs = () => {
       const currentMinutes = now.getMinutes().toString().padStart(2, '0');
       const currentTimeStr = `${currentHours}:${currentMinutes}`;
       
-      // We only care about subjects that have autoMarkPresent enabled
-      const subjectsToAutoMark = await Subject.find({ autoMarkPresent: true });
+      // Find users with globalAutoMark enabled
+      const usersWithGlobalAutoMark = await User.find({ globalAutoMark: true });
+      const globalAutoMarkUserIds = usersWithGlobalAutoMark.map((u) => u._id);
+
+      // We only care about subjects that have autoMarkPresent enabled 
+      // OR whose owner has globalAutoMark enabled
+      const subjectsToAutoMark = await Subject.find({ 
+        $or: [
+          { autoMarkPresent: true },
+          { user: { $in: globalAutoMarkUserIds } }
+        ]
+      });
       
       for (const subject of subjectsToAutoMark) {
         // Find any slots for THIS subject that end EXACTLY at this minute today
