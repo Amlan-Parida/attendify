@@ -13,6 +13,8 @@ import CalendarPage from './pages/CalendarPage';
 import SubjectsPage from './pages/SubjectsPage';
 import OnboardingPage from './pages/OnboardingPage';
 import IntelligencePage from './pages/IntelligencePage';
+import SettingsPage from './pages/SettingsPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function AppLayout({ children }) {
   useEffect(() => {
@@ -105,9 +107,18 @@ export default function App() {
               }
             />
 
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <AppLayout><SettingsPage /></AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Redirects */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<AppLayout><NotFoundPage /></AppLayout>} />
           </Routes>
         </SubjectProvider>
       </AuthProvider>

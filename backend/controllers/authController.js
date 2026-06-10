@@ -304,4 +304,138 @@ const resendOTP = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getMe, updateSettings, verifyOTP, resendOTP };
+// @desc    Forgot Password (generate OTP)
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await User.updateOne({ _id: user._id }, { $set: { resetPasswordOtp: otp, resetPasswordExpires: otpExpires } });
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">Attendify Password Reset</h2>
+        <p>Hi ${user.name},</p>
+        <p>We received a request to reset your password. Use the following OTP to reset it:</p>
+        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+          <h1 style="margin: 0; color: #111827; letter-spacing: 5px;">${otp}</h1>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">This OTP is valid for 10 minutes.</p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+      </div>
+    `;
+
+    try {
+      if (process.env.EMAIL_USER && process.env.EMAIL_USER !== 'your_email@gmail.com') {
+        await sendEmail({ email: user.email, subject: 'Attendify - Password Reset', html: emailHtml });
+      } else {
+        console.log(`\n============================\n🔐 DEVELOPMENT RESET OTP FOR ${user.email}: ${otp}\n============================\n`);
+      }
+    } catch (err) {
+      console.error('Email sending failed:', err);
+    }
+
+    res.status(200).json({ message: 'Password reset OTP sent to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during forgot password' });
+  }
+};
+
+// @desc    Reset Password
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) return res.status(400).json({ message: 'Please provide email, OTP, and new password' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.resetPasswordOtp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+    if (new Date() > new Date(user.resetPasswordExpires)) return res.status(400).json({ message: 'OTP has expired' });
+
+    user.password = newPassword;
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully. You can now log in.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during reset password' });
+  }
+};
+
+// @desc    Update Profile
+// @route   PUT /api/auth/update-profile
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ message: 'Name is required' });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.name = name;
+    await user.save();
+
+    res.json({ _id: user._id, name: user.name, email: user.email });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error updating profile' });
+  }
+};
+
+// @desc    Change Password
+// @route   PUT /api/auth/change-password
+// @access  Private
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Please provide current and new password' });
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user || !(await user.matchPassword(currentPassword))) {
+      return res.status(401).json({ message: 'Invalid current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error changing password' });
+  }
+};
+
+// @desc    Delete Account
+// @route   DELETE /api/auth/delete-account
+// @access  Private
+const deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Assuming a Subject model exists that references user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    const Subject = require('../models/Subject');
+    await Subject.deleteMany({ user: req.user._id });
+    await User.deleteOne({ _id: req.user._id });
+
+    res.json({ message: 'Account and all related data deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error deleting account' });
+  }
+};
+
+module.exports = { 
+  signup, login, getMe, updateSettings, verifyOTP, resendOTP,
+  forgotPassword, resetPassword, updateProfile, changePassword, deleteAccount
+};

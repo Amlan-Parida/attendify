@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   GraduationCap, Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, 
-  Zap, Target, ShieldCheck, BrainCircuit, Globe 
+  Zap, Target, ShieldCheck, BrainCircuit, Globe, KeyRound
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../utils/api';
 
 const SLIDES = [
   {
@@ -46,6 +47,13 @@ export default function LoginPage() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  
   const { login, verifyOtp, resendOtp } = useAuth();
   const navigate = useNavigate();
 
@@ -116,6 +124,40 @@ export default function LoginPage() {
       await resendOtp({ email });
     } catch (err) {
       toast.error(err.message || 'Failed to resend OTP');
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail) return toast.error('Enter your email');
+    setLoading(true);
+    try {
+      await api.post('/auth/forgot-password', { email: forgotEmail });
+      toast.success('OTP sent to your email');
+      setForgotStep(2);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotOtp || !newPassword) return toast.error('Fill in all fields');
+    setLoading(true);
+    try {
+      await api.post('/auth/reset-password', { email: forgotEmail, otp: forgotOtp, newPassword });
+      toast.success('Password reset successfully! You can now log in.');
+      setShowForgotModal(false);
+      setForgotStep(1);
+      setForgotEmail('');
+      setForgotOtp('');
+      setNewPassword('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -240,7 +282,10 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Access Key</label>
+                <div className="flex justify-between items-center ml-1">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Access Key</label>
+                  <button type="button" onClick={() => setShowForgotModal(true)} className="text-[10px] font-black uppercase tracking-[0.1em] text-indigo-500 hover:text-indigo-400 focus:outline-none">Forgot?</button>
+                </div>
                 <div className="relative group/input">
                   <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within/input:text-indigo-600 transition-colors" />
                   <input
@@ -340,6 +385,71 @@ export default function LoginPage() {
                   Resend OTP
                 </button>
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 w-screen h-screen z-[110] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="absolute inset-0" onClick={() => { setShowForgotModal(false); setForgotStep(1); }}></div>
+          <div className="glass-card w-full max-w-md bg-white dark:bg-slate-900 shadow-glow-lg border-white/20 p-8 rounded-3xl animate-slide-up relative z-10">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 shadow-inner">
+                <KeyRound className="w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Reset Password</h2>
+              
+              {forgotStep === 1 ? (
+                <>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">
+                    Enter your email address and we'll send you an OTP to reset your password.
+                  </p>
+                  <form onSubmit={handleForgotPassword} className="w-full space-y-6">
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="name@terminal.edu"
+                      className="premium-input w-full h-14"
+                      required
+                    />
+                    <button type="submit" disabled={loading} className="btn-premium w-full h-14">
+                      {loading ? 'Sending OTP...' : 'Send OTP'}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">
+                    Enter the OTP sent to <span className="text-indigo-500">{forgotEmail}</span> and your new password.
+                  </p>
+                  <form onSubmit={handleResetPassword} className="w-full space-y-6">
+                    <input
+                      type="text"
+                      value={forgotOtp}
+                      onChange={(e) => setForgotOtp(e.target.value)}
+                      placeholder="6-digit OTP"
+                      maxLength="6"
+                      className="premium-input w-full h-14 tracking-widest text-center text-lg font-black"
+                      required
+                    />
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="New Password (min 6 chars)"
+                      minLength="6"
+                      className="premium-input w-full h-14"
+                      required
+                    />
+                    <button type="submit" disabled={loading} className="btn-premium w-full h-14">
+                      {loading ? 'Resetting...' : 'Reset Password'}
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </div>
         </div>

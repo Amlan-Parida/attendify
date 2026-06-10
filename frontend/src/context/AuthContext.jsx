@@ -159,8 +159,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  const updateUser = useCallback((updatedUserData) => {
+    const newUser = { ...user, ...updatedUserData };
+    setUser(newUser);
+    localStorage.setItem('attendify_user', JSON.stringify(newUser));
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout, completeOnboarding, verifyOtp, resendOtp }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, completeOnboarding, verifyOtp, resendOtp, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
