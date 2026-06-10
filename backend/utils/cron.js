@@ -43,6 +43,13 @@ const startCronJobs = () => {
           const normalizedDate = new Date();
           normalizedDate.setUTCHours(0, 0, 0, 0);
 
+          // Calculate total combined weight for all slots today
+          let dailyWeight = subject.defaultWeight || 1;
+          const slotsToday = subject.slots.filter(s => Number(s.day) === currentDay);
+          if (slotsToday.length > 0) {
+            dailyWeight = slotsToday.reduce((sum, s) => sum + (Number(s.weight) || (s.type === 'Theory' ? 2 : 1)), 0);
+          }
+
           // Use findOneAndUpdate with upsert
           // This ensures that if the user ALREADY manually marked themselves "Absent" or "Holiday"
           // during the class, we DO NOT override it! It only inserts if no record exists.
@@ -57,9 +64,8 @@ const startCronJobs = () => {
                 user: subject.user,
                 subject: subject._id,
                 date: normalizedDate,
-                startTime: slot.startTime,
                 status: 'Present',
-                weight: slot.weight || (slot.type === 'Theory' ? 2 : 1),
+                weight: dailyWeight,
                 note: 'Auto-marked by system'
               }
             },

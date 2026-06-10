@@ -55,15 +55,15 @@ const markAttendance = async (req, res) => {
 
     // Determine weight:
     // 1. If a specific startTime slot is provided and matched → use slot weight
-    // 2. Otherwise → use subject.defaultWeight (Theory=2, Lab=1)
-    // This keeps the simple daily-mark flow: user just marks Present/Absent,
-    // and the correct weight is applied automatically.
-    // Calculate slot weight if a slot was provided
-    let slotWeight = subject.defaultWeight || 1;
-    if (startTime && subject.slots && subject.slots.length > 0) {
-      const matchingSlot = subject.slots.find((s) => s.startTime === startTime);
-      if (matchingSlot) {
-        slotWeight = matchingSlot.weight || slotWeight;
+    // 2. Otherwise → use subject.defaultWeight
+    // Calculate TOTAL combined weight of all slots scheduled for this day
+    const dayOfWeek = normalizedDate.getDay();
+    let dailyWeight = subject.defaultWeight || 1;
+
+    if (subject.slots && subject.slots.length > 0) {
+      const slotsToday = subject.slots.filter((s) => Number(s.day) === dayOfWeek);
+      if (slotsToday.length > 0) {
+        dailyWeight = slotsToday.reduce((sum, s) => sum + (Number(s.weight) || 1), 0);
       }
     }
 
@@ -85,7 +85,7 @@ const markAttendance = async (req, res) => {
     const record = await Attendance.findOneAndUpdate(
       { user: req.user._id, subject: subjectId, date: normalizedDate },
       { 
-        $set: { status, note: note || '', weight: slotWeight }
+        $set: { status, note: note || '', weight: dailyWeight }
       },
       { new: true, upsert: true, runValidators: true }
     );
